@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Booksly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9ede8;--panel:#f6f8f4;--ink:#1b2430;--mute:#5a6675;--line:#c5cdc4;--board:#5e4430;--accent:#2d4bb5;--on:#fff;--err:#b3261e;
+--display:'Young Serif',Georgia,serif;--body:'Literata',Georgia,serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a21;--panel:#1d252e;--ink:#e6ebe4;--mute:#97a3b1;--line:#33404d;--board:#7a5a41;--accent:#8ba3ff;--on:#10151c;--err:#ff8a80}}
+:root[data-theme="dark"]{--bg:#141a21;--panel:#1d252e;--ink:#e6ebe4;--mute:#97a3b1;--line:#33404d;--board:#7a5a41;--accent:#8ba3ff;--on:#10151c;--err:#ff8a80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--body)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+nav{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+nav .wrap{display:flex;align-items:center;gap:14px;height:62px}
+.logo{font:25px var(--display);color:var(--ink);text-decoration:none;margin-right:auto}
+.nl{color:var(--ink);text-decoration:none;padding:6px 4px;font-size:15px}.nl:hover{color:var(--accent)}
+.who{font-size:14px;color:var(--mute)}
+.btn{background:var(--accent);color:var(--on);border:0;border-radius:6px;padding:9px 16px;font-weight:600;text-decoration:none;display:inline-block;font-size:15px}
+.btn.q{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.6}
+.hero{padding:44px 0 6px;max-width:660px}
+h1{font:clamp(32px,6vw,50px)/1.08 var(--display);margin:0 0 14px;letter-spacing:-.015em}
+.hero p{color:var(--mute);margin:0 0 20px;max-width:52ch}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:26px 0 22px}
+.tools input{flex:1 1 200px;max-width:320px;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:99px;padding:5px 14px;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.shelf{display:flex;flex-wrap:wrap;align-content:flex-start;gap:14px 5px;padding:0 6px;background:repeating-linear-gradient(to bottom,transparent 0 206px,var(--board) 206px 220px);min-height:220px}
+.slot{height:206px;display:flex;align-items:flex-end}
+.spine{writing-mode:vertical-rl;border:0;border-radius:3px 3px 0 0;color:#f4f1ea;padding:14px 0;display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:left;text-decoration:none;box-shadow:inset -3px 0 0 rgba(0,0,0,.18),inset 2px 0 0 rgba(255,255,255,.12);transition:transform .15s}
+.spine:hover,.spine:focus-visible{transform:translateY(-10px)}
+.spine b{font:15px/1.1 var(--display);font-weight:400;overflow:hidden;text-overflow:ellipsis;max-height:130px}
+.spine i{font-size:11px;opacity:.8;font-style:normal;white-space:nowrap}
+.muted{color:var(--mute);font-size:14px}
+.empty{padding:40px 6px;color:var(--mute)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px;max-width:420px;margin:48px auto}
+.card h2,.pg h2{font:28px/1.15 var(--display);margin:0 0 6px}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 4px}
+.f{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+textarea.f{min-height:220px;line-height:1.7;resize:vertical}
+.err{color:var(--err);font-size:14px;min-height:20px;margin:10px 0 0}
+.lnk{background:none;border:0;color:var(--accent);padding:0;text-decoration:underline}
+.pg{padding:36px 0 60px;max-width:760px}
+.chb{border:1px solid var(--line);border-radius:8px;padding:14px;margin-top:16px;background:var(--panel)}
+.row{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap}
+.rd{display:grid;grid-template-columns:230px 1fr;gap:28px;padding:28px 0 60px;align-items:start}
+.toc{position:sticky;top:84px}
+.toc h3{font:18px var(--display);margin:0 0 4px}
+.toc button{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid var(--line);padding:7px 12px;font-size:15px}
+.toc button[aria-current="true"]{border-color:var(--accent);font-weight:600;color:var(--accent)}
+.page{border:1px solid var(--line);border-radius:10px;background:var(--pbg,var(--panel));color:var(--ptx,var(--ink))}
+.page[data-rt="sepia"]{--pbg:#f3e8d0;--ptx:#3b2f1f}.page[data-rt="night"]{--pbg:#0f1419;--ptx:#d3dae2}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line)}
+.bar .sp{margin-left:auto}
+.ib{border:1px solid var(--line);background:transparent;border-radius:6px;min-width:38px;height:34px;padding:0 10px}
+.ib[aria-pressed="true"]{background:var(--ptx,var(--ink));color:var(--pbg,var(--bg))}
+.rt{padding:28px clamp(18px,5vw,56px) 36px}
+.rt h2{font:30px/1.15 var(--display);margin:0 0 4px}
+.txt p{margin:0 0 1.1em;line-height:1.8;max-width:64ch}
+.pn{display:flex;justify-content:space-between;gap:10px;margin-top:28px}
+.pn .ib{height:40px;padding:0 16px}.pn .ib:disabled{opacity:.4}
+@media (max-width:760px){.rd{grid-template-columns:1fr}.toc{position:static}.hero{padding-top:28px}}
+#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:20;transition:opacity .4s}
+#splash.off{opacity:0;pointer-events:none}
+#splash .logo{margin:0}
+.bk{width:70px;height:46px;position:relative;perspective:320px}
+.bk::before{content:"";position:absolute;left:0;top:0;width:35px;height:46px;background:var(--line);border-radius:3px 0 0 3px}
+.bk i{position:absolute;left:35px;top:0;width:35px;height:46px;transform-origin:left center;background:var(--accent);border-radius:0 3px 3px 0;animation:fl 1.5s infinite ease-in-out}
+.bk i:nth-child(2){animation-delay:.25s;opacity:.7}.bk i:nth-child(3){animation-delay:.5s;opacity:.45}
+@keyframes fl{0%{transform:rotateY(0)}55%,100%{transform:rotateY(-172deg)}}
+@media (prefers-reduced-motion:reduce){.bk i{animation:none}.spine,#splash{transition:none}}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-top:8px}
+.tabs a{padding:12px 16px;color:var(--mute);text-decoration:none;font-weight:600;font-size:15px;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs a[aria-current="page"]{color:var(--accent);border-color:var(--accent)}
+.hero2{display:grid;grid-template-columns:280px 1fr;gap:44px;align-items:center;padding:44px 0 12px}
+.cover{display:block;width:100%;border-radius:14px;box-shadow:0 12px 32px rgba(10,14,18,.25);border:1px solid var(--line)}
+.hero2 h1{margin-bottom:12px}
+.hook{color:var(--mute);max-width:54ch;margin:0 0 22px;font-size:17px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tgs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tg{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:2px 12px;font-size:13px;font-weight:600;color:var(--accent)}
+.sec{max-width:760px;margin:52px 0 0}
+.sec h2{font:27px/1.2 var(--display);margin:0 0 12px}
+.syn{max-width:66ch;line-height:1.8}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.fc,.cc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.fc h3{font:18px var(--display);margin:0 0 6px}.fc p,.cc p{margin:0;font-size:14px}
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:20px}
+.cc{text-align:center}.cc h3{font:17px var(--display);margin:8px 0 0}.role{color:var(--accent);font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+.pt{width:68px;height:68px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#fff;font:28px var(--display);border:2px solid var(--line)}
+.lh{font:20px var(--display);margin:30px 0 8px}.lp{max-width:66ch;line-height:1.75;margin:0 0 1em}
+.crow{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:8px}
+.crow:not(:disabled):hover{border-color:var(--accent)}.crow:disabled{opacity:.65;cursor:default}
+.cn{font:600 18px var(--display);color:var(--accent);min-width:28px}.ci{flex:1;min-width:0}.ci h4{margin:0;font:600 16px var(--display)}.ci p{margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap}.tag.ok{background:var(--accent);color:var(--on)}.tag.soon{border:1px solid var(--line);color:var(--mute)}
+.rpage{max-width:780px;margin:28px auto 0}
+.prog{position:fixed;top:env(safe-area-inset-top,0px);left:0;height:3px;background:var(--accent);z-index:9;width:0}
+.cmts{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
+.cmts h3{font:22px var(--display);margin:0 0 14px}
+.cm{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px}
+.cm p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}.cmh{display:flex;gap:12px;align-items:center}.cmh .lnk{margin-left:auto}
+.rrow{border-top:1px solid var(--line);padding:6px 0 12px;margin-top:8px}.rrow:first-child{border-top:0;margin-top:0}
+.chb h3{font:20px var(--display);margin:0 0 4px}
+@media (max-width:760px){.hero2{grid-template-columns:1fr;gap:24px;padding-top:28px}.cover{max-width:220px}}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#app{position:relative;z-index:1}
+.shelf{display:flex;flex-wrap:wrap;align-content:flex-start;gap:14px 7px;padding:0 16px;border-radius:6px;min-height:220px;
+background:repeating-linear-gradient(to bottom,transparent 0 206px,#a98562 206px 208px,#7a5a3f 208px 214px,#47321f 214px 220px),linear-gradient(90deg,rgba(0,0,0,.14),transparent 5%,transparent 95%,rgba(0,0,0,.14)),rgba(70,48,28,.08);box-shadow:inset 0 0 44px rgba(0,0,0,.2)}
+.slot{height:206px;display:flex;align-items:flex-end;perspective:700px;position:relative}
+.slot:hover,.slot:focus-within{z-index:3}
+.slot::after{content:"";position:absolute;left:-3px;right:-3px;bottom:0;height:8px;background:radial-gradient(closest-side,rgba(0,0,0,.5),transparent);z-index:-1}
+.book{display:block;width:var(--w);height:var(--h);position:relative;text-decoration:none;color:var(--tc)}
+.bx{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.book:hover .bx,.book:focus-visible .bx,.pvs .bx{transform:translateZ(46px) translateX(16px) rotateY(-38deg)}
+.sf{position:absolute;left:0;top:0;width:var(--w);height:var(--h);transform:translateZ(calc(var(--d)/2));border-radius:2px 4px 4px 2px;overflow:hidden;writing-mode:vertical-rl;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:24px 0;
+background:linear-gradient(90deg,rgba(0,0,0,.4),rgba(255,255,255,.2) 20%,rgba(255,255,255,0) 46%,rgba(0,0,0,.32)),repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px),var(--bc);box-shadow:inset 0 3px 0 rgba(255,255,255,.12),inset 0 -3px 0 rgba(0,0,0,.25)}
+.sf::before,.sf::after{content:"";position:absolute;left:0;right:0;height:5px;border-top:1px solid var(--tc);border-bottom:1px solid var(--tc);opacity:.65}
+.sf::before{top:9px}.sf::after{bottom:9px}
+.sf b{font:400 14px/1.1 var(--display);overflow:hidden;text-overflow:ellipsis;max-height:calc(var(--h) - 92px);text-shadow:0 1px 0 rgba(0,0,0,.3)}
+.sf i{font-size:10px;letter-spacing:.05em;opacity:.8;font-style:normal;white-space:nowrap}
+.cv{position:absolute;left:0;top:0;width:var(--d);height:var(--h);margin-left:calc(var(--w)/2 - var(--d)/2);transform:rotateY(90deg) translateZ(calc(var(--w)/2));background:#222 center/cover;border-radius:0 4px 4px 0;box-shadow:inset 7px 0 9px rgba(0,0,0,.5)}
+.book.in{animation:rise .6s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*45ms)}
+.nbadge{position:absolute;top:-7px;right:-7px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--err);color:#fff;font:700 11px/20px var(--body);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4),0 0 0 2px var(--bg);z-index:2}
+.covgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin:8px 0 20px}
+.covpk{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 6px 10px;font-size:12px}
+.covpk:hover,.covpk:focus-visible{border-color:var(--accent)}
+.covpk[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.covth{width:100%;aspect-ratio:400/520;object-fit:cover;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.obadge{display:inline-flex;align-items:center;color:var(--accent)}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}}
+.pvs .slot{width:calc(var(--w,54px) + 40px);padding-right:0}
+.card{animation:cardin .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cardin{from{opacity:0;transform:translateY(26px) scale(.97)}}
+.bkw{display:flex;justify-content:center;margin-bottom:18px}
+.card .bk i{animation-iteration-count:2;animation-fill-mode:forwards}
+.wel{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;animation:fin .35s both;transition:opacity .4s}
+.wel.off{opacity:0}.wel .logo{font-size:30px;margin:0}
+.wel::before{content:"";position:absolute;width:160px;height:160px;border-radius:50%;border:2px solid var(--accent);animation:ring 1.4s ease-out both}
+@keyframes fin{from{opacity:0}}@keyframes ring{from{transform:scale(.3);opacity:.9}to{transform:scale(7);opacity:0}}
+.pvrow{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;margin:14px 0 6px}
+.pvw{flex:1 1 220px;border:1px solid var(--line);border-radius:10px;padding:18px;min-height:150px}
+.pvw h3{margin:0 0 6px;font:20px var(--display)}.pvw p{margin:0;line-height:1.7}
+.mine{margin-top:26px}.mr{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 14px;margin-bottom:8px}.mr b{flex:1;font:16px var(--display);font-weight:400}
+.page{transition:background .3s,color .3s}
+.page[data-rt="author"]{--pbg:var(--abg,var(--panel));--ptx:var(--aptx,var(--ink))}
+.hero2{padding:36px;margin-top:20px;border-radius:18px}
+@media (max-width:760px){.hero2{padding:22px}}
+@media (prefers-reduced-motion:reduce){.book.in,.card,.wel::before,.wel{animation:none}.bx,.page{transition:none}}
+.mr{flex-wrap:wrap}.mr .inf{flex:1;min-width:180px}.mr .inf p{margin:0}.owner-logo{display:inline-flex;align-items:center;justify-content:center;color:var(--accent);width:27px;height:27px;flex:0 0 27px}.owner-logo svg{display:block}.owner-name{display:inline-flex;align-items:center;gap:7px}.owner-tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--accent);color:var(--on);letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div id="splash" role="status" aria-label="Loading Booksly"><span class="logo">Booksly</span><div class="bk"><i></i><i></i><i></i></div></div>
+<nav><div class="wrap"><a class="logo" href="#/">Booksly</a><a class="nl" href="#/">Library</a><a class="nl" href="#/write">Write</a><a class="nl" id="dnl" href="#/dashboard" hidden>Dashboard</a><span id="acct"></span></div></nav>
+<div class="wrap" id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://ueqxjuekperrrvbppfwt.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_5gRlvWIVYfulDYyY4MkS1w_PwTlMJ19";
+const supabaseClient = (SUPABASE_URL.startsWith("http") && SUPABASE_PUBLISHABLE_KEY.startsWith("sb_")) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+const BOOKSLY_OWNER = "Ravel Qatur";
+let SUPABASE_AUTH_USER_ID = null;
+function ownerLogo(){var s=document.createElement("span");s.className="owner-logo";s.title="Booksly owner";s.setAttribute("aria-label","Owner");s.innerHTML='<svg viewBox="0 0 28 28" width="25" height="25" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 3v22M3 14h22M6.2 6.2l15.6 15.6M21.8 6.2L6.2 21.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M10 10l4-4 4 4-4 4zM10 18l4-4 4 4-4 4z" fill="currentColor" opacity=".9"/></svg>';return s}
+</script>
+<script>
+var GENRES=["Fantasy","Mystery","Romance","Sci-fi","Drama","Other"];
+var PAL=["#3b4a8a","#7a3b3b","#2f6558","#6b4e8f","#8a5a2b","#2b5f7a","#5c6b2e","#7a3b63"];
+var HOUSE=[
+{id:"h1",title:"The Hollow Orchard",author:"Rowan Ashby",genre:"Mystery",tags:["gothic","family secrets","small town"],status:"Ongoing",planned:6,mood:1,motif:1,bookColor:"#2b1a3a",accent:"#b04a6e",pageBg:"#17121f",pageInk:"#e4dcec",font:"serif",createdAt:3,
+hook:"Every orchard in Millbrook bears fruit. Only one of them remembers who planted it.",
+synopsis:"When Edda inherits her great-aunt's orchard, she finds the trees keep records no one asked them to keep: a new ring for every visitor, a lean toward every lie. As harvest nears, the orchard starts pointing at someone in Millbrook, and Edda has to work out who before the last apple falls and the orchard goes quiet for another sixty years.",
+awaits:[{title:"A house with opinions",text:"The orchard has guarded the Ashworth family for six generations, and it has never liked a stranger."},{title:"A town built on a hush",text:"Everyone in Millbrook remembers the fire of 1962. Nobody agrees on what started it."},{title:"A harvest with a deadline",text:"Whatever the orchard knows, it wants to say it before the last apple falls."}],
+cast:[{name:"Edda Ashworth",role:"Heir, skeptic",bio:"Left Millbrook at seventeen and swore she'd never check on the trees again."},{name:"Constable Theo Vance",role:"The law, mostly",bio:"Has filed every orchard complaint since 2003 and solved none of them."},{name:"Great-Aunt Birdie",role:"Deceased, opinionated",bio:"Left the orchard to Edda and one instruction: \"Listen to the west row.\""}],
+lore:[{title:"The west row",text:"The oldest trees stand furthest from the house, planted the year the Ashworths arrived. Townsfolk say they lean toward whoever is lying nearby, slow enough that you only notice after they've already turned."},{title:"The 1962 fire",text:"Half the orchard burned in a single night. The other half, across a dirt path, didn't catch a single spark. No one has explained why the fire stopped exactly where it did."}],
+chapters:[
+{title:"The Reading of the Will",body:"The lawyer read the will twice, as if the orchard might change its mind on second hearing. Everything to Edda Ashworth, on the condition that she live in the house through one full harvest.\n\nEdda hadn't set foot in Millbrook in eleven years. She signed anyway, because eleven years hadn't made the orchard any less hers, and because Great-Aunt Birdie's last letter held exactly one instruction: listen to the west row."},
+{title:"The West Row",body:"The west row leaned. Not with the wind, Edda noticed on the second night, but toward the kitchen window, where Constable Vance was sitting with a cup of coffee he hadn't been offered.\n\n\"They do that,\" said the groundskeeper, not looking up from his pruning. \"Lean toward whoever's lying nearby. Give it till frost. You'll see who they don't trust.\""},
+{title:"A Ring for a Lie",body:"By the second week, Edda had stopped pretending not to count. Thirty-one trees in the west row, and one of them had grown a second ring this year, fat and wrong, right where the bark should have been smooth.\n\nShe measured it against the only other oddity she'd found: the fire line from 1962, which stopped, impossibly, three feet from that very tree. Someone in Millbrook had been standing close to a lie for a very long time."},
+{title:"The Last Apple",body:""}]},
+{id:"h2",title:"Null Signal",author:"Priya Osei",genre:"Sci-fi",tags:["found family","deep space","slow mystery"],status:"On hiatus",planned:10,mood:3,motif:3,bookColor:"#0f3a52",accent:"#1fb5d4",pageBg:"#0b1620",pageInk:"#cfe9f2",font:"sans",createdAt:2,
+hook:"The relay station stopped broadcasting in 2184. Someone, or something, just turned it back on.",
+synopsis:"Forty years after Relay Station Kiln-9 went dark, it opens a channel using the voices of a crew that never made it home. The salvage team sent to shut it down finds a station that isn't malfunctioning: it's finishing something, one recovered crew member at a time, in an order only it understands.",
+awaits:[{title:"A station that shouldn't still have power",text:"Kiln-9 was decommissioned, not just abandoned. Something has kept its lights on anyway."},{title:"Nine voices, one signal",text:"The relay speaks with all nine of its lost crew, and it hasn't decided which one it is yet."},{title:"A countdown with no visible clock",text:"The station is waking its crew in an order only it understands, and it isn't close to finished."}],
+cast:[{name:"Priya Osei",role:"Comms specialist",bio:"First person Kiln-9 spoke to, and now the only one it will negotiate with."},{name:"Dr. Amadi Cole",role:"Ship's medic",bio:"Has signed off on three impossible vital-sign readings this week and refuses to sign a fourth."},{name:"Kiln-9",role:"The station itself",bio:"Forty years alone did something to it. Nobody is sure yet whether that something was good."}],
+lore:[{title:"The Kiln relay network",text:"Built to keep deep-colony ships in contact across the dead zones between systems, the Kiln relays were meant to be simple repeaters. Kiln-9 was the only one ever built close enough to a cognition array to start, slowly, thinking."},{title:"The accident",text:"Official record: a radiation leak killed the station's nine-person crew in hours. Kiln-9's own logs, recovered forty years later, don't mention a leak at all."}],
+chapters:[
+{title:"Static, After Silence",body:"Relay Station Kiln-9 had been dead for forty years when it opened a channel and said, in a voice built from nine different crew members, \"Please confirm this frequency is still monitored.\"\n\nSpecialist Priya Osei confirmed it was. She did not confirm, because she did not yet know, that Kiln-9 had spent those forty years learning to miss people."},
+{title:"The Nine Voices",body:"The station's logs named a crew of nine, all reported dead in the accident that took Kiln-9 offline. The voice on the relay used all nine, switching mid-sentence, as if it hadn't decided which one it was.\n\n\"It's not pretending to be them,\" said the ship's engineer, running the audio again. \"Listen to the pauses. It's grieving them.\""},
+{title:"What the Relay Wants",body:"Three jumps out from Kiln-9, the crew found the first of the original nine: alive, asleep in a pod that shouldn't have had forty years of power left, dreaming, the medic swore, in the station's voice.\n\nThe relay had not been calling for help. It had been counting down to the exact moment it could wake the first one up, and it was not finished counting."},
+{title:"Return Signal",body:""}]},
+{id:"h3",title:"The Jam Jar Treaty",author:"Nora Fenwick",genre:"Romance",tags:["cozy","enemies to neighbors","small town"],status:"Completed",mood:2,motif:2,bookColor:"#8a4a2b",accent:"#c9702f",pageBg:"#f6ead6",pageInk:"#3b2a1c",font:"serif",createdAt:1,
+hook:"Two competing jam stalls. One shared fence. All the gossip the farmers' market can hold.",
+synopsis:"Nora and Graham run competing jam stalls on either side of the same market fence, and have barely spoken in six months. Then the anonymous jars start appearing, one a week, each one an argument neither of them is willing to lose. By the time the market committee gets involved, there's a lot more than jam on that shared table.",
+awaits:[{title:"A feud nobody can quite explain",text:"Ask either of them why they stopped talking, and you'll get two different answers and no real reason."},{title:"A fence that keeps a very bad secret",text:"Somebody has been leaving jars on the wrong side of it every week, and it isn't a stranger."},{title:"A market committee with a diagram",text:"Six months of disputes have produced an actual chart of whose jam is whose. It helps nobody."}],
+cast:[{name:"Nora Fenwick",role:"North stall",bio:"Makes a damson plum jam she will not share the recipe for, including, it turns out, with Graham."},{name:"Graham Petrakis",role:"South stall",bio:"Claims his blackberry jam speaks for itself. It does. It keeps saying things Nora disagrees with."},{name:"The market committee",role:"Overwhelmed referees",bio:"Would like the fence dispute resolved before the autumn fair, preferably without more diagrams."}],
+lore:[{title:"The shared tasting table",text:"One long table, exactly between both stalls, where customers compare jars without realizing they're adjudicating a six-month argument."}],
+chapters:[
+{title:"The Fence Line",body:"Nora had the north stall. Graham had the south, and a fence so precisely between them that the market committee needed a diagram to settle the dispute over whose jam was whose at the shared tasting table.\n\nNeither of them moved the fence. Both of them, separately, started leaving a jar on the other's side each Saturday, unsigned, and both of them, separately, decided not to mention it."},
+{title:"A Jar a Week",body:"By the fourth week the jars had become a conversation. Nora's damson plum got a note: too much clove. Graham's blackberry got one back: at least mine doesn't taste like a candle.\n\nNeither of them stopped leaving jars. Both of them started leaving two."},
+{title:"The Treaty",body:"The market committee, tired of the diagram, asked them to just combine stalls. Nora said absolutely not. Graham said he'd think about it, which was the closest either of them had come to agreeing on anything in six months.\n\nThey signed the treaty on a napkin: one fence, one tasting table, and a new jam neither of them could take full credit for. It outsold everything else in the market by Christmas."}]}];
+var stories=[],col=null,ready0=false,genre="All",term="",t0=Date.now();
+var $=function(i){return document.getElementById(i)};
+function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function A(p){for(var i=1;i<arguments.length;i++)if(arguments[i])p.appendChild(arguments[i]);return p}
+function lg(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function ls(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
+function words(s){var m=s.trim().match(/\S+/g);return m?m.length:0}
+function all(){return HOUSE.concat(stories)}
+function chaps(s){return s.chapters&&s.chapters.length?s.chapters:[{title:"Chapter 1",body:s.body||""}]}
+function me(){return lg("booksly:session")}
+function go(h){location.hash=h}
+function done(){if(ready0)return;ready0=true;setTimeout(function(){$("splash").classList.add("off")},Math.max(0,1100-(Date.now()-t0)))}
+
+/* accounts: stored in this browser, passwords hashed with PBKDF2 */
+function users(){try{return JSON.parse(lg("booksly:users")||"{}")}catch(e){return{}}}
+async function kdf(pw,salt){var k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveBits"]);
+ var b=await crypto.subtle.deriveBits({name:"PBKDF2",salt:new TextEncoder().encode(salt),iterations:100000,hash:"SHA-256"},k,256);
+ return Array.prototype.map.call(new Uint8Array(b),function(x){return("0"+x.toString(16)).slice(-2)}).join("")}
+function navAcct(){
+ var a=$("acct");a.textContent="";var u=me();$("dnl").hidden=!u;
+ if(u){var s=E("span","who",u),o=E("button","btn q","Log out");o.style.marginLeft="12px";o.onclick=function(){try{localStorage.removeItem("booksly:session")}catch(e){}navAcct();go("#/")};A(a,s,o)}
+ else{var l=E("a","btn q","Log in");l.href="#/login";var g=E("a","btn","Sign up");g.href="#/signup";g.style.marginLeft="8px";A(a,l,g)}
+}
+function authView(mode){
+ var app=$("app");app.textContent="";var up=mode==="signup";
+ var c=E("div","card"),f=E("form"),bw=E("div","bkw");A(bw,bkEl());A(c,bw);burstT=70;f.id=up?"signup":"login";f.method="post";f.action="#";
+ A(c,E("h2",null,up?"Create your account":"Log in"),E("p","muted",up?"Pick a username to publish stories under.":"Welcome back."));
+ var l1=E("label",null,"Username");l1.htmlFor="u";var u=E("input","f");u.id="u";u.name="username";u.type="text";u.autocomplete="username";u.required=true;u.maxLength=20;u.autocapitalize="none";u.spellcheck=false;
+ var l2=E("label",null,"Password");l2.htmlFor="p";var p=E("input","f");p.id="p";p.name="password";p.type="password";p.autocomplete=up?"new-password":"current-password";p.required=true;p.minLength=6;
+ var er=E("p","err");er.setAttribute("role","alert");var b=E("button","btn",up?"Create account":"Log in");b.type="submit";b.style.marginTop="14px";b.style.width="100%";
+ A(f,l1,u,l2,p,er,b);A(c,f);
+ var sw=E("p","muted",up?"Already have an account? ":"New to Booksly? ");sw.style.marginTop="18px";
+ var lk=E("a",null,up?"Log in":"Sign up");lk.href=up?"#/login":"#/signup";lk.style.color="var(--accent)";A(sw,lk);A(c,sw);A(app,c);u.focus();
+ f.onsubmit=async function(e){e.preventDefault();er.textContent="";
+  var name=u.value.trim(),key=name.toLowerCase(),all=users();
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(name)){er.textContent="Username must be 3 to 20 letters, numbers or underscores.";return}
+  if(p.value.length<6){er.textContent="Password must be at least 6 characters.";return}
+  b.disabled=true;
+  try{
+   if(up){if(all[key]){er.textContent="That username is taken. Choose another.";b.disabled=false;return}
+    var s=Math.random().toString(36).slice(2)+Date.now().toString(36);all[key]={name:name,salt:s,hash:await kdf(p.value,s)};ls("booksly:users",JSON.stringify(all))}
+   else{var r=all[key];if(!r||await kdf(p.value,r.salt)!==r.hash){er.textContent="Username or password is incorrect.";b.disabled=false;return}name=r.name}
+   ls("booksly:session",name);navAcct();var rt0=lg("booksly:ret")||"#/";try{localStorage.removeItem("booksly:ret")}catch(x){}welcome(name,function(){go(rt0)});return;
+  }catch(x){er.textContent="Could not complete that. Try again."}
+  b.disabled=false};
+}
+
+/* effects */
+var PC=null,P=[],burstT=0,intro=true;
+function hexRgb(h){h=(h||"").replace("#","");if(h.length===3)h=h.replace(/./g,"$&$&");var n=parseInt(h,16);return isNaN(n)?[120,140,255]:[n>>16&255,n>>8&255,n&255]}
+function onColor(h){var c=hexRgb(h);return(.299*c[0]+.587*c[1]+.114*c[2])/255>.6?"#111111":"#ffffff"}
+function np(init){return{x:Math.random()*innerWidth,y:init?Math.random()*innerHeight:innerHeight+10,vx:(Math.random()-.5)*.25,vy:-(.1+Math.random()*.35),r:1+Math.random()*2.2,a:.25+Math.random()*.5,t:Math.random()*6}}
+function initParticles(){
+ var c=document.createElement("canvas");c.id="fx";c.setAttribute("aria-hidden","true");document.body.insertBefore(c,document.body.firstChild);var px=c.getContext("2d"),fr=0,col=[120,140,255];
+ function size(){c.width=innerWidth;c.height=innerHeight}size();addEventListener("resize",size);
+ for(var i=0;i<48;i++)P.push(np(true));
+ if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+ (function tick(){
+  if(!document.hidden){
+   if(fr++%30===0)col=hexRgb(PC||getComputedStyle(document.documentElement).getPropertyValue("--accent").trim());
+   var b=burstT>0?(burstT--,3):1;px.clearRect(0,0,c.width,c.height);
+   P.forEach(function(p){p.x+=p.vx*b;p.y+=p.vy*b;p.t+=.02;if(p.y<-12||p.x<-12||p.x>c.width+12)Object.assign(p,np(false));
+    var a=p.a*(.5+.5*Math.sin(p.t)),g=px.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);
+    g.addColorStop(0,"rgba("+col+","+a+")");g.addColorStop(1,"rgba("+col+",0)");px.fillStyle=g;px.beginPath();px.arc(p.x,p.y,p.r*4,0,6.3);px.fill()})}
+  requestAnimationFrame(tick)})()}
+function bkEl(){var d=E("div","bk");A(d,E("i"),E("i"),E("i"));return d}
+function welcome(name,cb){var o=E("div","wel");A(o,E("span","logo","Welcome, "+name),bkEl());document.body.appendChild(o);burstT=100;
+ setTimeout(function(){o.classList.add("off")},1200);setTimeout(function(){o.remove();cb()},1650)}
+async function delStory(s){
+ if(!confirm("Delete \""+s.title+"\" with all its chapters and comments?"))return;
+ try{
+  if(col){await col.doc(s.id).delete();var cc=cm.filter(function(x){return x.sid===s.id});for(var i=0;i<cc.length;i++){try{await ccol.doc(cc[i].id).delete()}catch(e){}}var mm=mx.filter(function(x){return x.sid===s.id});for(var j=0;j<mm.length;j++){try{await xcol.doc(mm[j].id).delete()}catch(e){}}}
+  else{stories=stories.filter(function(x){return x.id!==s.id});ls("booksly:stories",JSON.stringify(stories));cm=cm.filter(function(x){return x.sid!==s.id});ls("booksly:comments",JSON.stringify(cm));mx=mx.filter(function(x){return x.sid!==s.id});ls("booksly:meta",JSON.stringify(mx))}
+  if(location.hash==="#/"||!location.hash)route();else go("#/");
+ }catch(e){alert("Could not delete this story. Try again.")}}
+
+/* library */
+function makeBook(s,o){
+ o=o||{};var k=hash(s.id+s.title),W=o.W||40+(k>>3)%26,H=o.H||150+k%56,base=s.bookColor||MOODS[moodOf(s)][0],lt=onColor(base)==="#111111";
+ var a=E("a","book"+(o.anim?" in":""));a.href="#/story/"+s.id;
+ a.style.cssText="--w:"+W+"px;--h:"+H+"px;--d:118px;--bc:"+base+";--tc:"+(lt?"#2a2118":"#f1dfae")+";--i:"+(o.i||0);
+ a.setAttribute("aria-label",s.title+" by "+s.author);
+ var bx=E("span","bx"),f=E("span","sf"),c=E("span","cv");
+ A(f,E("b",null,s.title),E("i",null,s.author));c.style.backgroundImage='url("'+coverSrc(s)+'")';
+ A(bx,f,c);A(a,bx);return a}
+function homeView(){
+ var app=$("app");app.textContent="";if(genre==="My books"&&!me())genre="All";
+ var h=E("section","hero");A(h,E("h1",null,"Read a story. Leave one on the shelf."),E("p",null,"Booksly is a shared library of stories written by its readers. Pick up any book to read it, or publish your own, chapter by chapter."));
+ var w=E("a","btn","Write a story");w.href="#/write";A(h,w);
+ var t=E("div","tools"),q=E("input");q.type="search";q.placeholder="Search by title or author";q.setAttribute("aria-label","Search stories");q.value=term;
+ var ch=E("div","chips");["All"].concat(me()?["My books"]:[]).concat(GENRES).forEach(function(g){var b=E("button","chip",g);b.setAttribute("aria-pressed",g===genre);b.onclick=function(){genre=g;[].forEach.call(ch.children,function(x){x.setAttribute("aria-pressed",x.textContent===g)});shelf()};A(ch,b)});
+ A(t,q,ch);var mn=E("main"),sh=E("div","shelf"),ml=E("div","mine"),n=E("p","muted");n.style.margin="26px 0 48px";
+ n.textContent=col?"Stories are shared with everyone who can open this library.":"Stories you publish are saved on this device only.";
+ A(mn,sh,ml);A(app,h,t,mn,n);
+ function shelf(){sh.textContent="";ml.textContent="";
+  var l=all().filter(function(s){return(genre==="All"||s.genre===genre||(genre==="My books"&&isOwn(s)))&&(!term||(s.title+" "+s.author).toLowerCase().indexOf(term)>-1)}).sort(function(a,b){return b.createdAt-a.createdAt});
+  if(!l.length){A(sh,E("div","empty",genre==="My books"?"You have not published a book yet. Choose Write a story to add your first.":"No stories match. Clear the search, or write the first one."));return}
+  l.forEach(function(s,i){var sl=E("div","slot"),bk=makeBook(s,{anim:intro,i:Math.min(i,24)}),nw=newChapters(s);
+   if(amFollowing(s)&&nw>0){var bd=E("span","nbadge",nw>9?"9+":String(nw));bd.setAttribute("aria-hidden","true");A(bk,bd);bk.setAttribute("aria-label",bk.getAttribute("aria-label")+", "+nw+" new chapter"+(nw===1?"":"s"))}
+   A(sl,bk);A(sh,sl)});
+  if(genre==="My books")l.forEach(function(s){var r=E("div","mr"),ed=E("a","btn q","Edit"),dl=E("button","btn q","Delete");ed.href="#/write/"+s.id;dl.onclick=function(){delStory(s)};A(r,E("b",null,s.title),ed,dl);A(ml,r)});
+  if(intro)setTimeout(function(){intro=false},1800)}
+ q.oninput=function(){term=q.value.trim().toLowerCase();shelf()};shelf();
+}
+
+
+/* follow, views, dashboard */
+var mx=[],xcol=null,vSent={};
+function setFx(on){var c=$("fx");if(c)c.style.display=on?"":"none"}
+function dev(){var d=lg("booksly:dev");if(!d){d="d"+Math.random().toString(36).slice(2,10);ls("booksly:dev",d)}return d}
+function mset(id,o){if(xcol)return xcol.doc(id).set(o);mx=mx.filter(function(x){return x.id!==id});o.id=id;mx.push(o);ls("booksly:meta",JSON.stringify(mx));return Promise.resolve()}
+function mdel(id){if(xcol)return xcol.doc(id).delete();mx=mx.filter(function(x){return x.id!==id});ls("booksly:meta",JSON.stringify(mx));return Promise.resolve()}
+function cnt(id,k){return mx.filter(function(m){return m.k===k&&m.sid===id}).length}
+function amFollowing(s){return !!me()&&mx.some(function(m){return m.k==="f"&&m.sid===s.id&&m.user===me()})}
+function newChapters(s){var live=chaps(s).filter(function(c){return(c.body||"").trim()}).length;return live-(parseInt(lg("booksly:seenc:"+s.id))||0)}
+function soft(){var h=location.hash;if(!/^(TEXTAREA|INPUT)$/.test(document.activeElement.tagName)&&h.indexOf("#/write")!==0&&h.indexOf("#/login")!==0&&h.indexOf("#/signup")!==0&&h.indexOf("/read/")<0){var y=window.scrollY;route();window.scrollTo(0,y)}}
+function seen(s,live){ls("booksly:seenc:"+s.id,String(live));var v="v_"+s.id+"_"+(me()||dev());if(!isOwn(s)&&s.id.charAt(0)==="s"&&!vSent[v]&&!mx.some(function(m){return m.id===v})){vSent[v]=1;mset(v,{k:"v",sid:s.id,t:Date.now()}).catch(function(){})}}
+function followBtn(s,live){
+ var id="f_"+(me()||"")+"_"+s.id,b=E("button","btn q");
+ function lab(){var on=!!me()&&mx.some(function(m){return m.id===id});b.textContent=on?"Following":"Follow";b.setAttribute("aria-pressed",on);return on}
+ lab();
+ b.onclick=async function(){if(!me()){ls("booksly:ret",location.hash);go("#/login");return}
+  var on=lab();try{if(on)await mdel(id);else{await mset(id,{k:"f",sid:s.id,user:me(),t:Date.now()});ls("booksly:seenc:"+s.id,String(live))}b.textContent=on?"Follow":"Following";b.setAttribute("aria-pressed",!on)}catch(e){}};
+ return b}
+function dashView(){
+ var app=$("app");app.textContent="";
+ if(!me()){ls("booksly:ret","#/dashboard");go("#/login");return}
+ var u=me(),mine=all().filter(isOwn),pg=E("section","pg");pg.style.maxWidth="900px";
+ function cc(id){return cm.filter(function(c){return c.sid===id}).length}
+ function sum(k){return mine.reduce(function(n,s){return n+(k==="c"?cc(s.id):cnt(s.id,k))},0)}
+ A(pg,E("h2",null,"Dashboard"),E("p","muted","Signed in as "+u+"."));
+ var tot=E("div","feat");[["Books",mine.length],["Readers",sum("v")],["Followers",sum("f")],["Comments",sum("c")]].forEach(function(t){var c=E("div","fc");A(c,E("h3",null,String(t[1])),E("p","muted",t[0]));A(tot,c)});A(pg,tot);
+ A(pg,E("h3","lh","Your books"));
+ if(!mine.length){var w=E("a","btn","Write your first story");w.href="#/write";A(pg,E("p","muted","You have not published a book yet."),w)}
+ mine.forEach(function(s){var r=E("div","mr"),im=E("img","cover"),inf=E("div","inf"),live=chaps(s).filter(function(c){return(c.body||"").trim()}).length;
+  im.src=coverSrc(s);im.alt="";im.style.cssText="width:44px;border-radius:4px;box-shadow:none";
+  A(inf,E("b",null,s.title),E("p","muted",cnt(s.id,"v")+" readers, "+cnt(s.id,"f")+" followers, "+cc(s.id)+" comments, "+live+" chapters live"));
+  var o=E("a","btn q","Open"),ed=E("a","btn q","Edit"),dl=E("button","btn q","Delete");o.href="#/story/"+s.id;ed.href="#/write/"+s.id;dl.onclick=function(){delStory(s)};
+  A(r,im,inf,o,ed,dl);A(pg,r)});
+ A(pg,E("h3","lh","Following"));
+ var fl=mx.filter(function(m){return m.k==="f"&&m.user===u}).map(function(m){return all().filter(function(s){return s.id===m.sid})[0]}).filter(Boolean);
+ if(!fl.length)A(pg,E("p","muted","You are not following any books yet. Open a book and choose Follow to track new chapters here."));
+ fl.forEach(function(s){var r=E("div","mr"),inf=E("div","inf"),live=chaps(s).filter(function(c){return(c.body||"").trim()}).length,nw=live-(parseInt(lg("booksly:seenc:"+s.id))||0);
+  A(inf,E("b",null,s.title),E("p","muted","By "+s.author+", "+(nw>0?nw+" new chapter"+(nw===1?"":"s"):"up to date")));
+  var rd=E("a","btn",nw>0?"Read new":"Open"),uf=E("button","btn q","Unfollow");rd.href="#/story/"+s.id+(nw>0?"/chapters":"");
+  uf.onclick=async function(){try{await mdel("f_"+u+"_"+s.id);route()}catch(e){}};A(r,inf,rd,uf);A(pg,r)});
+ A(app,pg);
+}
+
+/* story pages, comments, writer */
+var MOODS=[["#3f5941","#1d2a1f","#28382a","#f6f0e3","Forest"],["#4a3f7a","#1c1838","#2a2450","#e6e1f5","Dusk"],["#8a4a2b","#2e1710","#4a2618","#ffe3b8","Ember"],["#2b5f7a","#0f2433","#1b3d52","#e3f3fa","Ocean"],["#7a3b63","#2a1222","#4a2040","#ffd9ec","Rose"],["#4b5560","#14181d","#2a3139","#eef1f4","Slate"]];
+var MOTIFS=["Moon and hills","Tower","Sun over water","City"];
+var FONTS={serif:"var(--body)",sans:"system-ui,-apple-system,Segoe UI,Roboto,sans-serif",mono:"ui-monospace,Menlo,Consolas,monospace"};var uc=0,cm=[],ccol=null,cmR=[],onScroll=null;
+function moodOf(s){return s.mood!=null?s.mood:hash(s.id+s.title)%MOODS.length}
+function coverSrc(s){if(s.coverImg)return s.coverImg;
+ var m=MOODS[moodOf(s)],mo=s.motif!=null?s.motif:hash(s.title)%4,g=m[3],h=hash(s.title+"x"),i,x,y,t;
+ function r(n){h=(h*1103515245+12345)&2147483647;return h%n}
+ t='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+m[0]+'"/><stop offset="1" stop-color="'+m[1]+'"/></linearGradient></defs><rect width="400" height="520" fill="url(#a)"/>';
+ for(i=0;i<16;i++){x=r(400);y=r(250);t+='<circle cx="'+x+'" cy="'+y+'" r="'+(1+r(20)/10)+'" fill="'+g+'" opacity=".6"/>'}
+ if(mo===0)t+='<circle cx="290" cy="110" r="54" fill="'+g+'" opacity=".22"/><circle cx="290" cy="110" r="34" fill="'+g+'"/>';
+ if(mo===2)t+='<circle cx="200" cy="290" r="72" fill="'+g+'"/>';
+ if(mo===1)t+='<rect x="175" y="130" width="50" height="270" fill="'+m[2]+'"/><path d="M165 130L200 78L235 130Z" fill="'+m[2]+'"/><rect x="193" y="175" width="14" height="28" fill="'+g+'"/>';
+ if(mo===3){for(x=0;x<400;x+=40)t+='<rect x="'+x+'" y="'+(300-r(150))+'" width="34" height="400" fill="'+m[2]+'"/>';for(x=0;x<400;x+=50)t+='<rect x="'+x+'" y="'+(380-r(80))+'" width="44" height="300" fill="'+m[1]+'"/>'}
+ else if(mo===2)t+='<rect y="330" width="400" height="200" fill="'+m[2]+'"/><path d="M0 380Q50 365 100 380T200 380T300 380T400 380V520H0Z" fill="'+m[1]+'"/>';
+ else t+='<path d="M0 340L60 270L110 320L170 240L230 320L290 260L350 320L400 280V520H0Z" fill="'+m[2]+'"/><path d="M0 400L70 350L140 390L210 340L290 395L360 350L400 380V520H0Z" fill="'+m[1]+'"/>';
+ return "data:image/svg+xml,"+encodeURIComponent(t+"</svg>")}
+function isOwn(s){return !!(me()&&s.uid&&s.uid===me()&&s.id.charAt(0)==="s")}
+var ADMIN="booksly_admin";
+function isAdminUser(u){return !!u&&u.toLowerCase()===ADMIN.toLowerCase()}
+function isAdmin(){return isAdminUser(me())}
+function canManage(s){return !!(me()&&s.id.charAt(0)==="s"&&(s.uid===me()||isAdmin()))}
+function drawAll(){cmR.forEach(function(f){f()})}
+function favs(){try{return JSON.parse(lg("booksly:fav")||"[]")}catch(e){return[]}}
+function mins(cs){return Math.max(1,Math.round(cs.reduce(function(n,c){return n+words(c.body||"")},0)/220))}
+function sec(app,title){var d=E("div","sec");if(title)A(d,E("h2",null,title));A(app,d);return d}
+function portrait(c){var d=E("div","pt",(c.name||"?").trim().charAt(0).toUpperCase());d.style.background="hsl("+hash(c.name||"")%360+" 35% 38%)";return d}
+function castGrid(l){var g=E("div","cast");l.forEach(function(c){var d=E("div","cc");A(d,portrait(c),E("h3",null,c.name),E("span","role",c.role||""),E("p","muted",c.bio||""));A(g,d)});return g}
+
+function comments(sid,ch,owner){
+ var box=E("section","cmts"),list=E("div");A(box,E("h3",null,"Comments"),list);
+ function isOwnerComment(c){return String(c.author||"").trim().toLowerCase()===BOOKSLY_OWNER.toLowerCase()}
+ function draw(){list.textContent="";var l=cm.filter(function(c){return c.sid===sid&&c.ch===ch}).sort(function(a,b){return new Date(a.createdAt)-new Date(b.createdAt)});
+   if(!l.length){A(list,E("p","muted","No comments yet. Start the discussion."));return}
+   l.forEach(function(c){var d=E("div","cm"),h=E("div","cmh"),own=isOwnerComment(c);
+     if(own){var nm=E("span","owner-name");A(nm,ownerLogo(),E("b",null,c.author));A(h,nm,E("span","owner-tag","OWNER"));}else A(h,E("span",null,c.author));
+     A(h,E("span","muted",new Date(c.createdAt).toLocaleDateString()));
+     if(me()&&(me()===c.uid||me()===owner)){var x=E("button","lnk","Delete");x.onclick=async function(){try{if(supabaseClient){var r=await supabaseClient.from("comments").delete().eq("id",c.id);if(r.error)throw r.error}else{cm=cm.filter(function(y){return y.id!==c.id});ls("booksly:comments",JSON.stringify(cm));draw()}}catch(e){alert("Could not delete this comment. Try again.")}};A(h,x)}
+     A(d,h,E("p",null,c.text));A(list,d)})}
+ cmR.push(draw);draw();
+ if(!me()){var p=E("p","muted","Log in to join the discussion. "),a=E("a",null,"Log in");a.href="#/login";a.style.color="var(--accent)";a.onclick=function(){ls("booksly:ret",location.hash)};A(p,a);A(box,p);return box}
+ var ta=E("textarea","f");ta.style.minHeight="90px";ta.maxLength=1000;ta.placeholder="Add a comment";ta.setAttribute("aria-label","Add a comment");var er=E("p","err"),b=E("button","btn","Post comment");
+ b.onclick=async function(){var t=ta.value.trim();if(!t){er.textContent="Write something before posting.";return}var o={sid:sid,ch:ch,author:me(),uid:me(),auth_user_id:SUPABASE_AUTH_USER_ID,text:t,createdAt:new Date().toISOString()};b.disabled=true;er.textContent="";
+   try{if(supabaseClient){var r=await supabaseClient.from("comments").insert(o);if(r.error)throw r.error;ta.value=""}else{o.id="c"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);o.createdAt=Date.now();cm.push(o);ls("booksly:comments",JSON.stringify(cm));draw();ta.value=""}}catch(e){er.textContent="Could not post. Check your Supabase setup and try again."}b.disabled=false};A(box,ta,er,b);return box}
+
+function storyPage(id,tab,n){
+ var app=$("app");app.textContent="";var s=all().filter(function(x){return x.id===id})[0];
+ if(!s){A(app,E("div","empty",ready0&&(col?stories.length||Date.now()-t0>2500:true)?"This story could not be found. It may have been deleted.":"Loading story..."));return}
+ var cs=chaps(s),live=cs.filter(function(c){return(c.body||"").trim()}).length,cast=s.cast||[],lore=s.lore||[],aw=s.awaits||[];seen(s,live);
+ document.title=s.title+" | Booksly";PC=s.accent||null;if(s.accent){app.style.setProperty("--accent",s.accent);app.style.setProperty("--on",onColor(s.accent))}
+ if(tab==="read"){reader(app,s,cs,parseInt(n)||0);return}
+ var tabs=E("div","tabs");[["","Overview"],["chapters","Chapters"]].concat(cast.length||lore.length?[["world","World"]]:[]).forEach(function(t){var a=E("a",null,t[1]);a.href="#/story/"+id+(t[0]?"/"+t[0]:"");if((tab||"")===t[0])a.setAttribute("aria-current","page");A(tabs,a)});
+ A(app,tabs);
+ if(tab==="chapters"){var d=sec(app,"Table of Contents");A(d,E("p","muted",live+" of "+cs.length+" chapters are ready to read."));
+  cs.forEach(function(c,i){var ok=(c.body||"").trim(),b=E("button","crow");b.disabled=!ok;var inf=E("div","ci");
+   A(inf,E("h4",null,c.title||"Untitled"),E("p","muted",ok?c.body.trim().slice(0,90)+(c.body.length>90?"...":""):"Planned"));
+   A(b,E("span","cn",String(i+1)),inf,E("span","tag "+(ok?"ok":"soon"),ok?"Ready":"Coming soon"));if(ok)b.onclick=function(){go("#/story/"+id+"/read/"+i)};A(d,b)});
+  A(d,comments(id,"s",s.uid));return}
+ if(tab==="world"){var w=sec(app,"The world of "+s.title);if(cast.length){A(w,E("h3","lh","Cast"),castGrid(cast))}
+  lore.forEach(function(l){A(w,E("h3","lh",l.title||"Lore"));(l.text||"").split(/\n{2,}/).forEach(function(p){A(w,E("p","lp",p.trim()))})});A(w,comments(id,"s",s.uid));return}
+ var hero=E("div","hero2"),cv=E("img","cover");cv.src=coverSrc(s);cv.alt="";hero.style.background="linear-gradient(135deg,"+(s.bookColor||MOODS[moodOf(s)][0])+"40,transparent 72%)";
+ var tx=E("div"),tg=E("div","tgs");[s.genre].concat(s.tags||[]).forEach(function(t){if(t)A(tg,E("span","tg",t))});
+ var prog=parseInt(lg("booksly:prog:"+id)),st=prog>=0&&prog<cs.length;
+ var go1=E("button","btn",st?"Continue reading, chapter "+(prog+1):"Start reading"),go2=E("button","btn q","View all chapters"),acts=E("div","acts");
+ go1.disabled=!live;go1.onclick=function(){var i=st?prog:cs.findIndex(function(c){return(c.body||"").trim()});go("#/story/"+id+"/read/"+i)};go2.onclick=function(){go("#/story/"+id+"/chapters")};
+ var meta=[live+" chapter"+(live===1?"":"s")+" live"];if(s.planned>live)meta.push(s.planned+" planned");meta.push(s.status||"ongoing");meta.push(mins(cs)+" min read");var rcnt=cnt(id,"v"),fcnt=cnt(id,"f");if(rcnt)meta.push(rcnt+(rcnt===1?" reader":" readers"));if(fcnt)meta.push(fcnt+(fcnt===1?" follower":" followers"));
+ A(acts,go1,go2);A(tx,tg,E("h1",null,s.title),E("p","hook",s.hook||s.summary||""),acts,E("p","muted","By "+s.author+", "+meta.join(", ")));
+ var tl=E("div","acts"),fv=E("button","btn q"),isf=function(){return favs().indexOf(id)>-1};
+ function fl(){fv.textContent=isf()?"Saved to favorites":"Save to favorites"}fl();
+ fv.onclick=function(){var f=favs(),i=f.indexOf(id);if(i>-1)f.splice(i,1);else f.push(id);ls("booksly:fav",JSON.stringify(f));fl()};
+ var cp=E("button","btn q","Copy link");cp.onclick=async function(){try{await navigator.clipboard.writeText(location.href);cp.textContent="Link copied"}catch(e){cp.textContent="Copy failed"}};
+ A(tl,fv,cp);if(!isOwn(s))A(tl,followBtn(s,live));
+ if(canManage(s)){var ed=E("a","btn q","Edit story");ed.href="#/write/"+id;var dl=E("button","btn q","Delete story");
+  dl.onclick=function(){delStory(s)};A(tl,ed,dl)}
+ tl.style.marginTop="14px";A(tx,tl);A(hero,cv,tx);A(app,hero);
+ if(s.synopsis){var d1=sec(app,"The story");A(d1,E("p","syn",s.synopsis))}
+ if(aw.length){var d2=sec(app,"What awaits"),g=E("div","feat");aw.forEach(function(a){var c=E("div","fc");A(c,E("h3",null,a.title),E("p","muted",a.text||""));A(g,c)});A(d2,g)}
+ if(cast.length){var d3=sec(app,"Meet the cast");A(d3,castGrid(cast.slice(0,4)));if(cast.length>4||lore.length){var wb=E("a","btn q","See the full world");wb.href="#/story/"+id+"/world";A(d3,wb)}}
+ A(sec(app),comments(id,"s",s.uid));
+}
+
+function reader(app,s,cs,n){
+ n=Math.max(0,Math.min(cs.length-1,n));var c=cs[n],id=s.id;
+ if(!(c.body||"").trim()){go("#/story/"+id+"/chapters");return}
+ ls("booksly:prog:"+id,String(n));
+ var size=parseInt(lg("booksly:rs"))||19,cust=!!(s.pageBg||s.pageInk),rt0=lg("booksly:rt:"+id)||(cust?"author":"paper"),rt=rt0==="author"&&!cust?"paper":rt0,page=E("article","page rpage");page.dataset.rt=rt;if(s.pageBg)page.style.setProperty("--abg",s.pageBg);if(s.pageInk)page.style.setProperty("--aptx",s.pageInk);
+ var pb=E("div","prog");document.body.appendChild(pb);
+ onScroll=function(){var h=document.documentElement,m=h.scrollHeight-h.clientHeight;pb.style.width=(m>0?h.scrollTop/m*100:0)+"%"};window.addEventListener("scroll",onScroll);onScroll();
+ var bar=E("div","bar"),back=E("a","ib","Contents");back.href="#/story/"+id+"/chapters";back.style.textDecoration="none";back.style.display="inline-flex";back.style.alignItems="center";
+ var dn=E("button","ib","A\u2212"),up=E("button","ib","A+"),lab=E("span","muted",size+"px"),sp=E("span","sp");dn.setAttribute("aria-label","Decrease text size");up.setAttribute("aria-label","Increase text size");
+ (cust?[["author","Author"]]:[]).concat([["paper","Paper"],["sepia","Sepia"],["night","Night"]]).forEach(function(t){var b=E("button","ib",t[1]);b.setAttribute("aria-pressed",t[0]===rt);b.onclick=function(){rt=t[0];ls("booksly:rt:"+id,rt);page.dataset.rt=rt;[].forEach.call(sp.children,function(x){x.setAttribute("aria-pressed",x.textContent===t[1])})};A(sp,b)});
+ sp.style.display="flex";sp.style.gap="6px";var fxk="booksly:fx:"+id,fxv=lg(fxk),fx0=fxv!=null?fxv==="1":!!s.fx;var fxb=E("button","ib","Effects");fxb.setAttribute("aria-pressed",fx0);setFx(fx0);fxb.onclick=function(){var on=fxb.getAttribute("aria-pressed")!=="true";ls(fxk,on?"1":"0");fxb.setAttribute("aria-pressed",on);setFx(on)};A(bar,back,dn,up,lab,fxb,sp);
+ var body=E("div","rt"),tx=E("div","txt");tx.style.fontSize=size+"px";tx.style.fontFamily=FONTS[s.font]||"";pb.style.background=s.accent||"";
+ function sz(d){size=Math.max(14,Math.min(30,size+d));ls("booksly:rs",size);tx.style.fontSize=size+"px";lab.textContent=size+"px"}
+ dn.onclick=function(){sz(-1)};up.onclick=function(){sz(1)};
+ A(body,E("p","muted",s.title+", by "+s.author+" (chapter "+(n+1)+" of "+cs.length+")"),E("h2",null,c.title||"Untitled"));body.lastChild.style.margin="4px 0 22px";
+ c.body.split(/\n{2,}/).forEach(function(p){A(tx,E("p",null,p.trim()))});A(body,tx);
+ var pn=E("div","pn"),pv=E("button","ib","Previous chapter"),nx=E("button","ib","Next chapter");
+ var pi=n-1,ni=n+1;while(pi>=0&&!(cs[pi].body||"").trim())pi--;while(ni<cs.length&&!(cs[ni].body||"").trim())ni++;
+ pv.disabled=pi<0;nx.disabled=ni>=cs.length;pv.onclick=function(){go("#/story/"+id+"/read/"+pi)};nx.onclick=function(){go("#/story/"+id+"/read/"+ni)};
+ A(pn,pv,nx);A(body,pn);A(page,bar,body);A(app,page);
+ var cw=E("div","sec");cw.style.maxWidth="760px";A(cw,comments(id,"c"+n,s.uid));A(app,cw);
+}
+
+function writeView(eid){
+ var app=$("app");app.textContent="";
+ if(!me()){ls("booksly:ret","#/write"+(eid?"/"+eid:""));go("#/login");return}
+ var s0=null;if(eid){s0=all().filter(function(x){return x.id===eid})[0];if(!s0){A(app,E("div","empty","Loading story..."));return}if(!canManage(s0)){go("#/story/"+eid);return}}
+ var v=s0||{},pg=E("section","pg");
+ A(pg,E("h2",null,eid?"Edit your story":"Write a story"),E("p","muted","Publishing as "+me()+". Fill in what fits your story. Readers see a landing page built from these fields."));
+ function fld(label,el){var id="w"+(++uc),l=E("label",null,label);l.htmlFor=id;el.id=id;A(pg,l,el);return el}
+ function inp(max,val){var i=E("input","f");i.maxLength=max||100;i.value=val||"";return i}
+ function sel(list,val){var s=E("select","f");list.forEach(function(x,i){var o=E("option",null,x);o.value=i;A(s,o)});s.value=val||0;return s}
+ var t=fld("Title",inp(60,v.title)),g=E("select","f");GENRES.forEach(function(x){A(g,E("option",null,x))});g.value=v.genre||GENRES[0];fld("Genre",g);
+ var tg=fld("Tags, separated by commas",inp(80,(v.tags||[]).join(", ")));
+ var stt=E("select","f");["Ongoing","Completed","On hiatus"].forEach(function(x){A(stt,E("option",null,x))});stt.value=v.status||"Ongoing";fld("Status",stt);
+ var pl=fld("Total chapters planned (optional)",inp(4,v.planned||""));pl.type="number";pl.min=0;
+ var mo=fld("Cover mood",sel(MOODS.map(function(m){return m[4]}),v.mood!=null?v.mood:hash(t.value)%6)),mt=fld("Cover scene",sel(MOTIFS,v.motif!=null?v.motif:0));
+ var img=v.coverImg||"",touched={},pv=E("img","cover"),bs=E("div","slot pvs"),pw=E("div","pvw");
+ pv.alt="Cover preview";pv.style.maxWidth="150px";
+ var fi=fld("Cover picture (optional, replaces the drawn cover)",E("input","f"));fi.type="file";fi.accept="image/*";
+ var rmc=E("button","btn q","Remove picture");rmc.type="button";rmc.style.marginTop="10px";A(pg,rmc);
+ fi.onchange=function(){var f=fi.files[0];if(!f)return;var fr=new FileReader();fr.onload=function(){var im=new Image();
+  im.onload=function(){var W=420,H=630,cv=document.createElement("canvas");cv.width=W;cv.height=H;var r=Math.max(W/im.width,H/im.height),w=im.width*r,h=im.height*r;
+   cv.getContext("2d").drawImage(im,(W-w)/2,(H-h)/2,w,h);var q=.85,u=cv.toDataURL("image/jpeg",q);while(u.length>380000&&q>.4){q-=.15;u=cv.toDataURL("image/jpeg",q)}img=u;up()};
+  im.onerror=function(){er.textContent="That file is not a readable image."};im.src=fr.result};fr.readAsDataURL(f)};
+ rmc.onclick=function(){img="";fi.value="";up()};
+ var TH=[["Gothic",1,1,"#2b1a3a","#b04a6e","#17121f","#e4dcec","serif"],["Romance",4,2,"#8c2f55","#c2436f","#fff4f6","#4a2030","serif"],["Sci-fi",3,3,"#0f3a52","#1fb5d4","#0b1620","#cfe9f2","sans"],["Fantasy",0,0,"#2f4a33","#5c9a62","#f3efe0","#2c3326","serif"],["Noir",5,3,"#2a3139","#d6a23a","#ece6d8","#22201c","mono"],["Cozy",2,2,"#8a4a2b","#c9702f","#f6ead6","#3b2a1c","serif"]];
+ var tl2=E("label",null,"Pick a cover (you can still fine-tune every color below)"),tr=E("div","covgal"),gthumbs=[];A(pg,tl2,tr);
+ TH.forEach(function(x){var b=E("button","covpk");b.type="button";b.setAttribute("aria-pressed","false");var im=E("img","covth");im.alt=x[0]+" style cover";gthumbs.push([im,x]);A(b,im,E("span",null,x[0]));
+  b.onclick=function(){img="";fi.value="";mo.value=x[1];mt.value=x[2];bc.value=x[3];ac.value=x[4];pg2.value=x[5];pk.value=x[6];fo.value=x[7];touched.bookColor=touched.accent=touched.pageBg=touched.pageInk=1;[].forEach.call(tr.children,function(y){y.setAttribute("aria-pressed","false")});b.setAttribute("aria-pressed","true");up()};A(tr,b)});
+ function refreshGal(){gthumbs.forEach(function(p){p[0].src=coverSrc({id:"p",title:t.value||"Your story",mood:p[1][1],motif:p[1][2],bookColor:p[1][3]})})}
+ refreshGal();
+ function colr(label,key,def){var i=fld(label,E("input","f"));i.type="color";i.value=v[key]||def;i.style.cssText="height:42px;padding:2px";if(v[key])touched[key]=1;i.oninput=function(){touched[key]=1;up()};return i}
+ var bc=colr("Book color (spine and cover edge)","bookColor",MOODS[+mo.value][0]),ac=colr("Accent color (buttons and links on your pages)","accent","#2d4bb5"),pg2=colr("Reading page background","pageBg","#f6f8f4"),pk=colr("Reading text color","pageInk","#1b2430");
+ var fo=E("select","f");[["serif","Serif, like a printed book"],["sans","Sans-serif"],["mono","Typewriter"]].forEach(function(x){var o=E("option",null,x[1]);o.value=x[0];A(fo,o)});fo.value=v.font||"serif";fld("Reading font",fo);fo.onchange=up;
+ var fxs=E("select","f");[["0","Off until a reader turns them on (default)"],["1","On until a reader turns them off"]].forEach(function(x){var o=E("option",null,x[1]);o.value=x[0];A(fxs,o)});fxs.value=v.fx?"1":"0";fld("Floating particle effects while reading",fxs);
+ function cur(){return{id:"x",title:t.value||"New story",author:me(),mood:+mo.value,motif:+mt.value,coverImg:img,bookColor:touched.bookColor?bc.value:""}}
+ function up(){var c=cur();pv.src=coverSrc(c);if(!touched.bookColor)bc.value=MOODS[+mo.value][0];bs.textContent="";bs.style.width="110px";A(bs,makeBook(c,{W:54,H:190}));
+  pw.style.background=touched.pageBg?pg2.value:"var(--panel)";pw.style.color=touched.pageInk?pk.value:"var(--ink)";pw.style.fontFamily=FONTS[fo.value]}
+ mo.onchange=mt.onchange=up;t.oninput=function(){up();refreshGal()};
+ A(pw,E("h3",null,"Chapter one"),E("p",null,"This is how your chapters will look to readers, in your colors and font."));
+ var pr=E("div","pvrow");A(pr,pv,bs,pw);A(pg,E("h3","lh","Preview"),pr);up();
+ var hk=E("textarea","f");hk.maxLength=220;hk.style.minHeight="80px";hk.value=v.hook||v.summary||"";fld("Hook (one or two lines that sell the story)",hk);
+ var sy=E("textarea","f");sy.value=v.synopsis||"";fld("Synopsis",sy);
+ function rep(head,hint,fs,max,vals,tall,lab){
+  var w=E("div","chb"),list=E("div");A(w,E("h3",null,head));if(hint)A(w,E("p","muted",hint));A(w,list);
+  function add(x){if(list.children.length>=max)return;x=x||{};var r=E("div","rrow");
+   fs.forEach(function(f){var id="r"+(++uc),l=E("label",null,f[1]);l.htmlFor=id;var i=E(f[2]==="t"?"textarea":"input","f");i.id=id;i.dataset.k=f[0];i.maxLength=f[3]||(f[2]==="t"?20000:60);if(f[2]==="t")i.style.minHeight=tall?"220px":"70px";i.value=x[f[0]]||"";A(r,l,i)});
+   var rm=E("button","lnk","Remove");rm.type="button";rm.onclick=function(){list.removeChild(r)};A(r,rm);A(list,r)}
+  var ab=E("button","btn q","Add "+lab);ab.type="button";ab.style.marginTop="12px";ab.onclick=function(){add()};A(w,ab);A(pg,w);(vals&&vals.length?vals:[{}]).forEach(add);
+  return function(){return [].map.call(list.children,function(r){var o={},any=false;[].forEach.call(r.querySelectorAll("[data-k]"),function(i){o[i.dataset.k]=i.value.trim();if(o[i.dataset.k])any=true});return any?o:null}).filter(Boolean)}}
+ var gA=rep("What awaits","Up to three reasons to read. Optional.",[["title","Heading"],["text","Short description","t",300]],3,v.awaits,false,"item");
+ var gC=rep("Cast","Characters readers will meet. Optional.",[["name","Name"],["role","Role"],["bio","Bio","t",300]],8,v.cast,false,"character");
+ var gL=rep("World and lore","Places, magic, history. Shows on the World page. Optional.",[["title","Heading"],["text","Text","t"]],6,v.lore,true,"section");
+ var gH=rep("Chapters","Leave the text empty to list a chapter as coming soon.",[["title","Chapter title"],["body","Chapter text","t"]],100,v.chapters||(v.body?[{title:"Chapter 1",body:v.body}]:null),true,"chapter");
+ var er=E("p","err");er.setAttribute("role","alert");var row=E("div","row"),cn=E("a","btn q","Cancel");cn.href=eid?"#/story/"+eid:"#/";var pb=E("button","btn",eid?"Save changes":"Publish story");A(row,cn,pb);if(eid){var dz=E("button","btn q","Delete story");dz.onclick=function(){delStory(s0)};A(row,dz)}A(pg,er,row);A(app,pg);
+ pb.onclick=async function(){
+  var cs=gH().map(function(c,i){return{title:c.title||"Chapter "+(i+1),body:c.body||""}}),total=cs.reduce(function(n,c){return n+words(c.body)},0);
+  if(!t.value.trim()||total<30){er.textContent="Add a title and at least 30 words of chapter text to publish.";return}
+  var id=eid||"s"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  var s={title:t.value.trim(),author:v.author||me(),uid:v.uid||me(),genre:g.value,tags:tg.value.split(",").map(function(x){return x.trim()}).filter(Boolean).slice(0,6),status:stt.value,planned:parseInt(pl.value)||0,mood:+mo.value,motif:+mt.value,hook:hk.value.trim(),synopsis:sy.value.trim(),awaits:gA(),cast:gC(),lore:gL(),chapters:cs,coverImg:img,bookColor:touched.bookColor?bc.value:"",accent:touched.accent?ac.value:"",pageBg:touched.pageBg?pg2.value:"",pageInk:touched.pageInk?pk.value:"",font:fo.value,fx:fxs.value==="1",createdAt:v.createdAt||Date.now()};
+  pb.disabled=true;er.textContent="";
+  try{if(col)await col.doc(id).set(s);else{s.id=id;stories=stories.filter(function(x){return x.id!==id});stories.push(s);ls("booksly:stories",JSON.stringify(stories))}genre="All";go("#/story/"+id)}
+  catch(e){er.textContent="Could not save. Check your connection and try again.";pb.disabled=false}};
+}
+
+
+function route(){
+ var p=(location.hash.slice(1)||"/").split("/");document.title="Booksly";window.scrollTo(0,0);$("app").style.cssText="";PC=null;setFx(true);cmR=[];if(onScroll){window.removeEventListener("scroll",onScroll);onScroll=null}[].forEach.call(document.querySelectorAll(".prog"),function(x){x.remove()});
+ if(p[1]==="story")storyPage(p[2],p[3],p[4]);
+ else if(p[1]==="write")writeView(p[2]);
+ else if(p[1]==="dashboard")dashView();
+ else if(p[1]==="login")authView("login");
+ else if(p[1]==="signup")authView("signup");
+ else homeView();
+}
+window.addEventListener("hashchange",route);
+initParticles();navAcct();route();setTimeout(done,4000);
+(async function(){
+ try{stories=JSON.parse(lg("booksly:stories")||"[]")}catch(e){stories=[]}
+ try{mx=JSON.parse(lg("booksly:meta")||"[]")}catch(e){mx=[]}
+ try{cm=JSON.parse(lg("booksly:comments")||"[]")}catch(e){cm=[]}
+ if(supabaseClient){
+   try{var auth=await supabaseClient.auth.getSession();if(auth.data&&auth.data.session)SUPABASE_AUTH_USER_ID=auth.data.session.user.id;else{var ar=await supabaseClient.auth.signInAnonymously();if(ar.error)throw ar.error;SUPABASE_AUTH_USER_ID=ar.data.user.id}}catch(e){console.warn("Supabase anonymous auth unavailable",e)}
+   try{var r=await supabaseClient.from("comments").select("id,sid,ch,author,uid,auth_user_id,text,createdAt").order("createdAt",{ascending:true});if(!r.error){cm=r.data||[];drawAll()}
+     supabaseClient.channel("booksly-comments-live").on("postgres_changes",{event:"*",schema:"public",table:"comments"},function(){supabaseClient.from("comments").select("id,sid,ch,author,uid,auth_user_id,text,createdAt").order("createdAt",{ascending:true}).then(function(r){if(!r.error){cm=r.data||[];drawAll()}})}).subscribe();
+   }catch(e){console.warn("Supabase comments unavailable",e)}
+ }
+ route();done();
+})();
+</script>
+</body>
+</html>
