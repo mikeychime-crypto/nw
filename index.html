@@ -276,13 +276,23 @@ function initParticles(){
 function bkEl(){var d=E("div","bk");A(d,E("i"),E("i"),E("i"));return d}
 function welcome(name,cb){var o=E("div","wel");A(o,E("span","logo","Welcome, "+name),bkEl());document.body.appendChild(o);burstT=100;
  setTimeout(function(){o.classList.add("off")},1200);setTimeout(function(){o.remove();cb()},1650)}
-async function delStory(s){
+async async function delStory(s){
  if(!confirm("Delete \""+s.title+"\" with all its chapters and comments?"))return;
  try{
-  if(col){await col.doc(s.id).delete();var cc=cm.filter(function(x){return x.sid===s.id});for(var i=0;i<cc.length;i++){try{await ccol.doc(cc[i].id).delete()}catch(e){}}var mm=mx.filter(function(x){return x.sid===s.id});for(var j=0;j<mm.length;j++){try{await xcol.doc(mm[j].id).delete()}catch(e){}}}
-  else{stories=stories.filter(function(x){return x.id!==s.id});ls("booksly:stories",JSON.stringify(stories));cm=cm.filter(function(x){return x.sid!==s.id});ls("booksly:comments",JSON.stringify(cm));mx=mx.filter(function(x){return x.sid!==s.id});ls("booksly:meta",JSON.stringify(mx))}
+  if(supabaseClient){
+   var rr=await supabaseClient.from("stories").delete().eq("id",s.id);
+   if(rr.error)throw rr.error;
+   stories=stories.filter(function(x){return x.id!==s.id});
+   cm=cm.filter(function(x){return x.sid!==s.id});
+   mx=mx.filter(function(x){return x.sid!==s.id});
+  }else{
+   stories=stories.filter(function(x){return x.id!==s.id});
+   ls("booksly:stories",JSON.stringify(stories));
+   cm=cm.filter(function(x){return x.sid!==s.id});ls("booksly:comments",JSON.stringify(cm));
+   mx=mx.filter(function(x){return x.sid!==s.id});ls("booksly:meta",JSON.stringify(mx));
+  }
   if(location.hash==="#/"||!location.hash)route();else go("#/");
- }catch(e){alert("Could not delete this story. Try again.")}}
+ }catch(e){console.error(e);alert("Could not delete this story. Check your connection and try again.")}}
 
 /* library */
 function makeBook(s,o){
@@ -300,7 +310,7 @@ function homeView(){
  var t=E("div","tools"),q=E("input");q.type="search";q.placeholder="Search by title or author";q.setAttribute("aria-label","Search stories");q.value=term;
  var ch=E("div","chips");["All"].concat(me()?["My books"]:[]).concat(GENRES).forEach(function(g){var b=E("button","chip",g);b.setAttribute("aria-pressed",g===genre);b.onclick=function(){genre=g;[].forEach.call(ch.children,function(x){x.setAttribute("aria-pressed",x.textContent===g)});shelf()};A(ch,b)});
  A(t,q,ch);var mn=E("main"),sh=E("div","shelf"),ml=E("div","mine"),n=E("p","muted");n.style.margin="26px 0 48px";
- n.textContent=col?"Stories are shared with everyone who can open this library.":"Stories you publish are saved on this device only.";
+ n.textContent=supabaseClient?"Stories are shared with everyone who can open Booksly.":"Stories you publish are saved on this device only.";
  A(mn,sh,ml);A(app,h,t,mn,n);
  function shelf(){sh.textContent="";ml.textContent="";
   var l=all().filter(function(s){return(genre==="All"||s.genre===genre||(genre==="My books"&&isOwn(s)))&&(!term||(s.title+" "+s.author).toLowerCase().indexOf(term)>-1)}).sort(function(a,b){return b.createdAt-a.createdAt});
@@ -520,8 +530,27 @@ function writeView(eid){
   var id=eid||"s"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   var s={title:t.value.trim(),author:v.author||me(),uid:v.uid||me(),genre:g.value,tags:tg.value.split(",").map(function(x){return x.trim()}).filter(Boolean).slice(0,6),status:stt.value,planned:parseInt(pl.value)||0,mood:+mo.value,motif:+mt.value,hook:hk.value.trim(),synopsis:sy.value.trim(),awaits:gA(),cast:gC(),lore:gL(),chapters:cs,coverImg:img,bookColor:touched.bookColor?bc.value:"",accent:touched.accent?ac.value:"",pageBg:touched.pageBg?pg2.value:"",pageInk:touched.pageInk?pk.value:"",font:fo.value,fx:fxs.value==="1",createdAt:v.createdAt||Date.now()};
   pb.disabled=true;er.textContent="";
-  try{if(col)await col.doc(id).set(s);else{s.id=id;stories=stories.filter(function(x){return x.id!==id});stories.push(s);ls("booksly:stories",JSON.stringify(stories))}genre="All";go("#/story/"+id)}
-  catch(e){er.textContent="Could not save. Check your connection and try again.";pb.disabled=false}};
+  try{
+   s.id=id;
+   if(supabaseClient){
+    var rr=await supabaseClient.from("stories").upsert({
+     id:s.id,
+     author:s.author,
+     uid:s.uid,
+     data:s,
+     created_at:new Date(s.createdAt||Date.now()).toISOString(),
+     updated_at:new Date().toISOString()
+    },{onConflict:"id"});
+    if(rr.error)throw rr.error;
+    stories=stories.filter(function(x){return x.id!==id});
+    stories.push(s);
+   }else{
+    stories=stories.filter(function(x){return x.id!==id});
+    stories.push(s);
+    ls("booksly:stories",JSON.stringify(stories));
+   }
+   genre="All";go("#/story/"+id)
+  }catch(e){console.error(e);er.textContent="Could not save. Check your connection and try again.";pb.disabled=false}};
 }
 
 
@@ -541,9 +570,27 @@ initParticles();navAcct();route();setTimeout(done,4000);
  try{mx=JSON.parse(lg("booksly:meta")||"[]")}catch(e){mx=[]}
  try{cm=JSON.parse(lg("booksly:comments")||"[]")}catch(e){cm=[]}
  if(supabaseClient){
-   try{var auth=await supabaseClient.auth.getSession();if(auth.data&&auth.data.session)SUPABASE_AUTH_USER_ID=auth.data.session.user.id;else{var ar=await supabaseClient.auth.signInAnonymously();if(ar.error)throw ar.error;SUPABASE_AUTH_USER_ID=ar.data.user.id}}catch(e){console.warn("Supabase anonymous auth unavailable",e)}
-   try{var r=await supabaseClient.from("comments").select("id,sid,ch,author,uid,auth_user_id,text,createdAt").order("createdAt",{ascending:true});if(!r.error){cm=r.data||[];drawAll()}
-     supabaseClient.channel("booksly-comments-live").on("postgres_changes",{event:"*",schema:"public",table:"comments"},function(){supabaseClient.from("comments").select("id,sid,ch,author,uid,auth_user_id,text,createdAt").order("createdAt",{ascending:true}).then(function(r){if(!r.error){cm=r.data||[];drawAll()}})}).subscribe();
+   try{
+    var sr=await supabaseClient.from("stories").select("id,author,uid,data,created_at,updated_at").order("created_at",{ascending:true});
+    if(sr.error)throw sr.error;
+    stories=(sr.data||[]).map(function(row){
+     var x=row.data&&typeof row.data==="object"?row.data:{};
+     x.id=row.id;x.author=row.author||x.author;x.uid=row.uid||x.uid;
+     x.createdAt=x.createdAt||new Date(row.created_at).getTime();
+     x.updatedAt=x.updatedAt||new Date(row.updated_at||row.created_at).getTime();
+     return x;
+    });
+   }catch(e){console.warn("Supabase stories unavailable",e)}
+   try{
+    var auth=await supabaseClient.auth.getSession();
+    if(auth.data&&auth.data.session)SUPABASE_AUTH_USER_ID=auth.data.session.user.id;
+   }catch(e){console.warn("Supabase auth session unavailable",e)}
+   try{
+    var r=await supabaseClient.from("comments").select("id,sid,ch,author,uid,auth_user_id,text,createdAt").order("createdAt",{ascending:true});
+    if(!r.error){cm=r.data||[];drawAll()}
+    supabaseClient.channel("booksly-comments-live").on("postgres_changes",{event:"*",schema:"public",table:"comments"},function(){
+     supabaseClient.from("comments").select("id,sid,ch,author,uid,auth_user_id,text,createdAt").order("createdAt",{ascending:true}).then(function(r){if(!r.error){cm=r.data||[];drawAll()}})
+    }).subscribe();
    }catch(e){console.warn("Supabase comments unavailable",e)}
  }
  route();done();
